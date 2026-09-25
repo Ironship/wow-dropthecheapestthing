@@ -1,8 +1,12 @@
-# DropTheCheapestThing (Ironship branch)
+# DropTheCheapestThing (Ironship fork)
 
-This is [kemayo's DropTheCheapestThing](https://github.com/kemayo/wow-dropthecheapestthing) with two changes that are still waiting in upstream pull requests:
+A fork of [DropTheCheapestThing](https://github.com/kemayo/wow-dropthecheapestthing) by kemayo, the addon that finds and drops or sells the cheapest junk in your bags.
 
-- **Appearance threshold** ([#37](https://github.com/kemayo/wow-dropthecheapestthing/pull/37)): when unknown appearances are protected, a quality floor lets greys and whites count as junk again.
-- **Ignore-list modifier** ([#38](https://github.com/kemayo/wow-dropthecheapestthing/pull/38)): the right-click that adds the cheapest item to the ignore list can use Alt or Shift instead of Control.
+What this fork changes (both are open upstream pull requests; the fork goes away once they are merged):
 
-Everything else follows upstream master, and this branch will be dropped once both are merged. The libraries (Ace3, LibDBIcon) are pulled in by the packager, so a plain download of this repository also needs them installed as standalone addons.
+- Appearance quality floor ([#37](https://github.com/kemayo/wow-dropthecheapestthing/pull/37)): with unknown appearances protected, greys and whites can still count as junk.
+- Ignore-list click modifier ([#38](https://github.com/kemayo/wow-dropthecheapestthing/pull/38)): the right-click that ignores the cheapest item can use Alt or Shift instead of Control.
+
+Install: unzip the release zip from [Releases](https://github.com/Ironship/wow-dropthecheapestthing/releases) into `Interface/AddOns`; it already contains the libraries.
+
+Licence: BSD, as the original.
