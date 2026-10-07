@@ -146,7 +146,7 @@ function module:OnInitialize()
 					low = {
 						type = "group",
 						name = "Low level items",
-						desc = "Which items of a lower level (more than 10 below yours) to automatically count as junk",
+						desc = "Which items of a lower level to automatically count as junk",
 						inline = true,
 						order = 20,
 						get = function(info) return db.profile.low[info[#info]] end,
@@ -156,6 +156,13 @@ function module:OnInitialize()
 							potion = { name = "Potions", type = "toggle", order = 20 },
 							bandage = { name = "Bandages", type = "toggle", order = 30 },
 							scroll = { name = "Scrolls", type = "toggle", order = 40 },
+							levels = {
+								type = "range",
+								name = "Levels below yours",
+								desc = "How far under your level an item has to be before it counts. 10 means only items more than ten levels below you are junk.",
+								min = 1, max = 60, step = 1,
+								order = 50,
+							},
 						},
 					},
 					soulbound = {

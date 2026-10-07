@@ -27,6 +27,9 @@ local GetContainerItemInfo = _G.GetContainerItemInfo or function(...)
 end
 local NUM_REAGENTBAG_SLOTS = _G.NUM_REAGENTBAG_SLOTS or 0
 
+local LE_ITEM_CLASS_CONSUMABLE = _G.LE_ITEM_CLASS_CONSUMABLE or (Enum and Enum.ItemClass and Enum.ItemClass.Consumable) or 0
+ns.LE_ITEM_CLASS_CONSUMABLE = LE_ITEM_CLASS_CONSUMABLE
+
 local LE_ITEM_CLASS_CONSUMABLE_POTION = 1
 local LE_ITEM_CLASS_CONSUMABLE_ELIXIR = 2
 local LE_ITEM_CLASS_CONSUMABLE_FLASK = 3
@@ -101,6 +104,7 @@ function core:OnInitialize()
 				scroll = false,
 				potion = false,
 				bandage = false,
+				levels = 10,
 			}
 		},
 	}, DEFAULT)
@@ -228,7 +232,7 @@ local filters = {
 	end,
 	-- Low level consumables
 	function(bag, slot, itemid, quality, level, class, subclass)
-		if class ~= LE_ITEM_CLASS_CONSUMABLE or level == 0 or (player_level - level) <= 10 then
+		if class ~= LE_ITEM_CLASS_CONSUMABLE or level == 0 or (player_level - level) <= (db.profile.low.levels or 10) then
 			return
 		end
 		if slot_soulbound[encode_bagslot(bag, slot)] then
@@ -330,6 +334,58 @@ function GetConsideredItemInfo(bag, slot)
 
 	local _, count = GetContainerItemInfo(bag, slot)
 	return itemid, link, count, stacksize, quality, value, source, action, sellable
+end
+
+local filter_names = {
+	"never_consider",
+	"always_consider",
+	"low_level_consumable",
+	"quality_threshold",
+	"soulbound",
+	"unknown_appearance",
+}
+
+function core:ExplainSlot(bag, slot)
+	local link = GetContainerItemLink(bag, slot)
+	if not link then
+		return "empty slot"
+	end
+	local _, _, quality, ilvl, reqLevel, _, _, _, _, _, _, class, subclass = C_Item.GetItemInfo(link)
+	if not quality then
+		return link .. ": item info not loaded"
+	end
+	local itemid = link_to_id(link)
+	local level = max(ilvl or 0, reqLevel or 0)
+	local player = player_level or UnitLevel("player")
+	local out = {
+		("%s quality=%s class=%s subclass=%s ilvl=%s reqLevel=%s level=%s player=%s gap=%s"):format(
+			link, tostring(quality), tostring(class), tostring(subclass),
+			tostring(ilvl), tostring(reqLevel), tostring(level),
+			tostring(player), tostring(player and player - level)
+		),
+	}
+	if item_quest[itemid] then
+		out[#out + 1] = "quest item: kept"
+		return table.concat(out, "\n")
+	end
+	for i, filter in ipairs(filters) do
+		local ok, action = pcall(filter, bag, slot, itemid, quality, level, class, subclass)
+		if not ok then
+			out[#out + 1] = ("%s -> error: %s"):format(filter_names[i] or ("filter" .. i), tostring(action))
+			return table.concat(out, "\n")
+		end
+		out[#out + 1] = ("%s -> %s"):format(filter_names[i] or ("filter" .. i), tostring(action))
+		if action == false then
+			out[#out + 1] = "result: kept"
+			return table.concat(out, "\n")
+		end
+		if action == true then
+			out[#out + 1] = "result: junk (forced)"
+			return table.concat(out, "\n")
+		end
+	end
+	out[#out + 1] = "result: junk only if quality <= threshold"
+	return table.concat(out, "\n")
 end
 
 do

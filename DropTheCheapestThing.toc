@@ -38,5 +38,7 @@ button.lua
 
 api.lua
 
+debug.lua
+
 integration.lua
 compatibility.lua
