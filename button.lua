@@ -98,7 +98,7 @@ button:SetScript("OnClick", function()
 		DEFAULT_CHAT_FRAME:AddMessage(("Sold %d %s for %s"):format(
 			numsold,
 			numsold > 1 and "items" or "item",
-			core.copper_to_pretty_money(total)
+			core.copper_to_icon_money(total)
 		))
 	end
 	button:Disable()

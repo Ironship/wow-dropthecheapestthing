@@ -52,6 +52,7 @@ read_globals = {
     "C_AddOns",
     "C_Item",
     "C_Container",
+    "C_CurrencyInfo",
     "C_Transmog",
     "C_TransmogCollection",
     "BreakUpLargeNumbers",

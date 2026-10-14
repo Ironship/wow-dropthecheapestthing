@@ -9,7 +9,7 @@ local debugf = tekDebug and tekDebug:GetFrame(myname)
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", tostringall(...))) end end
 core.Debug = Debug
 
-local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
+local db, iterate_bags, slot_sorter, copper_to_pretty_money, copper_to_icon_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
 	link_to_id, item_value, item_value_bagslot, GetConsideredItemInfo, verify_slot_contents,
 	GetAppearanceAndSource, CanLearnAppearance, HasAppearance, CanTransmogItem
@@ -556,6 +556,21 @@ function copper_to_pretty_money(c)
 end
 core.copper_to_pretty_money = copper_to_pretty_money
 
+-- C_CurrencyInfo.GetCoinTextureString replaced the GetCoinTextureString global
+-- in 10.2.6 (the global is removed in 12.1.5): prefer the new API, keep the
+-- old global for older clients.
+local get_coin_texture_string = (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString) or _G.GetCoinTextureString
+
+-- Chat frames render texture escapes (unlike the broker text in ldb.lua), so
+-- the chat messages can show the built-in coin icons instead of "22s 35c".
+function copper_to_icon_money(c)
+	if get_coin_texture_string then
+		return get_coin_texture_string(c)
+	end
+	return copper_to_pretty_money(c)
+end
+core.copper_to_icon_money = copper_to_icon_money
+
 function add_junk_to_tooltip(tooltip, slots, divider_position)
 	slots = slots or drop_slots
 	if #slots == 0 then
@@ -638,11 +653,11 @@ function drop_bagslot(bagslot, sell_only, drop_only)
 	if core.at_merchant and not drop_only then
 		-- value might be the auction value, so force-check it
 		value = slot_counts[bagslot] * item_value_bagslot(bagslot, true)
-		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(value))
+		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_icon_money(value))
 		UseContainerItem(bag, slot)
 	elseif not sell_only then
 		value = slot_values[bagslot]
-		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(value))
+		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_icon_money(value))
 		PickupContainerItem(bag, slot)
 		DeleteCursorItem()
 	else
