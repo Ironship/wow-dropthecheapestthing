@@ -561,8 +561,8 @@ core.copper_to_pretty_money = copper_to_pretty_money
 -- old global for older clients.
 local get_coin_texture_string = (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString) or _G.GetCoinTextureString
 
--- Chat frames render texture escapes (unlike the broker text in ldb.lua), so
--- the chat messages can show the built-in coin icons instead of "22s 35c".
+-- Chat frames and tooltips render texture escapes (unlike the broker text in
+-- ldb.lua), so they can show the built-in coin icons instead of "22s 35c".
 function copper_to_icon_money(c)
 	if get_coin_texture_string then
 		return get_coin_texture_string(c)
@@ -582,8 +582,8 @@ function add_junk_to_tooltip(tooltip, slots, divider_position)
 			if i - 1 == divider_position then
 				tooltip:AddDoubleLine("------------", "------")
 			end
-			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
-				(slot_values[bagslot] ~= slot_weightedvalues[bagslot] and (' (' .. copper_to_pretty_money(slot_weightedvalues[bagslot]) .. ')') or '') ..
+			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_icon_money(slot_values[bagslot]) ..
+				(slot_values[bagslot] ~= slot_weightedvalues[bagslot] and (' (' .. copper_to_icon_money(slot_weightedvalues[bagslot]) .. ')') or '') ..
 				(db.profile.auction and
 					(' '..(slot_valuesources[bagslot] == 'vendor' and '|cff9d9d9d' or '|cff1eff00') ..
 					slot_valuesources[bagslot]:sub(1,1)) ..
@@ -592,7 +592,7 @@ function add_junk_to_tooltip(tooltip, slots, divider_position)
 				nil, nil, nil, 1, 1, 1)
 			total = total + slot_values[bagslot]
 		end
-		tooltip:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)
+		tooltip:AddDoubleLine(" ", "Total: " .. copper_to_icon_money(total), nil, nil, nil, 1, 1, 1)
 	end
 end
 core.add_junk_to_tooltip = add_junk_to_tooltip
